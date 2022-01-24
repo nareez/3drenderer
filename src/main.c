@@ -87,6 +87,25 @@ void update(void){
 
 }
 
+void draw_grid(int grid_size){
+    uint32_t color_white = 0xFFFFFFFF;
+    for(int y = 0; y < window_height; y++){
+        for(int x = 0; x < window_width; x++){
+            if (y % grid_size == 0 || x % grid_size == 0){
+                color_buffer[(window_width * y) + x] = color_white;
+            }          
+        }
+    }
+}
+
+void draw_rect(int dx, int dy, int width, int height, uint32_t color){
+    for(int y = dy; y < (dy + height); y++){
+        for(int x = dx; x < (dx + width); x++){
+            color_buffer[(window_width * y) + x] = color;
+        }
+    }
+}
+
 void render_color_buffer(void){
     SDL_UpdateTexture(
         color_buffer_texture,
@@ -109,8 +128,13 @@ void render(void){
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderClear(renderer);
 
+    draw_grid(50);
+
+    draw_rect(222,333,444,555, 0xFFF2F35F);
+
     render_color_buffer();
-    clear_color_buffer(0xFFFFFF00);
+    
+    clear_color_buffer(0xFF000000);
 
     SDL_RenderPresent(renderer);
 }
