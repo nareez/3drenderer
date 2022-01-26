@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 #include "display.h"
+#include "vector.h"
 
 bool is_running = false;
 
@@ -58,6 +59,9 @@ int main(void) {
     is_running = initialize_window();
     
     setup();
+
+    vec3_t myvec3 = {2.0, 2.1, 3.6};
+    printf("teste: %f", myvec3.x);
 
     while(is_running){
         process_input();
