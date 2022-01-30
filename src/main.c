@@ -118,7 +118,7 @@ int main(void) {
 
     // declare FPS Count variables
     Uint64 startTickCount;
-    Uint64 end;
+    Uint64 endTickCount;
     long int frame_count = 0;
 
     while(is_running){
@@ -131,9 +131,9 @@ int main(void) {
         render();
 
         //get end tick and calculate FPS
-        end = SDL_GetPerformanceCounter();
+        endTickCount = SDL_GetPerformanceCounter();
         frame_count++;
-        float elapsed = (end - startTickCount) / (float)SDL_GetPerformanceFrequency();
+        float elapsed = (endTickCount - startTickCount) / (float)SDL_GetPerformanceFrequency();
         if(frame_count % 120 == 0){
             printf("FPS: %f \n", (1.0f / elapsed));
         }

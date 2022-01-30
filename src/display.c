@@ -5,8 +5,8 @@ SDL_Renderer* renderer = NULL;
 uint32_t* color_buffer = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 
-int window_width = 800;
-int window_height = 600;
+int window_width = 1000;
+int window_height = 800;
 
 
 bool initialize_window(void){
@@ -15,11 +15,12 @@ bool initialize_window(void){
         return false;
     }
 
+    //uncomment to fullscreen
     //Get max resolution
-    SDL_DisplayMode display_mode;
-    SDL_GetCurrentDisplayMode(0, &display_mode);
-    window_width = display_mode.w;
-    window_height = display_mode.h;
+    // SDL_DisplayMode display_mode;
+    // SDL_GetCurrentDisplayMode(0, &display_mode);
+    // window_width = display_mode.w;
+    // window_height = display_mode.h;
 
     //Create SQL Window
     window = SDL_CreateWindow(
@@ -28,7 +29,7 @@ bool initialize_window(void){
         SDL_WINDOWPOS_CENTERED,
         window_width,
         window_height,
-        SDL_WINDOW_BORDERLESS
+        0 // SDL_WINDOW_BORDERLESS //uncomment to remove borders 
     );
     if(!window) {
         fprintf(stderr, "Error creating SDL window.\n");
@@ -42,7 +43,8 @@ bool initialize_window(void){
         return false;
     }
 
-    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    //uncomment to full screen
+    // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
     return true;
 }
