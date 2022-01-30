@@ -10,7 +10,7 @@ const int N_POINTS = 9 * 9 * 9;
 vec3_t cube_points[9 * 9 * 9]; // 9x9x9 cube
 vec2_t projected_points[N_POINTS];
 
-vec3_t camera_position = { .x = -4, .y = -3, .z = -5 };
+vec3_t camera_position = { .x = -1, .y = -1, .z = -5 };
 float fov_factor = 640; 
 
 bool is_running = false;
@@ -63,19 +63,19 @@ void process_input(void){
                 break;
             }
             if (event.key.keysym.sym == SDLK_e){
-                camera_position.y -= 0.4;
+                camera_position.y += 0.3;
                 break;
             }
             if (event.key.keysym.sym == SDLK_d){
-                camera_position.y += 0.4;
+                camera_position.y -= 0.3;
                 break;
             }
             if (event.key.keysym.sym == SDLK_r){
-                camera_position.x -= 0.4;
+                camera_position.x -= 0.3;
                 break;
             }
             if (event.key.keysym.sym == SDLK_f){
-                camera_position.x += 0.4;
+                camera_position.x += 0.3;
                 break;
             }
     }
