@@ -10,7 +10,9 @@ const int N_POINTS = 9 * 9 * 9;
 vec3_t cube_points[9 * 9 * 9]; // 9x9x9 cube
 vec2_t projected_points[N_POINTS];
 
-vec3_t camera_position = { .x = -1, .y = -1, .z = -5 };
+vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
+vec3_t cube_rotation = { .x = 0, .y = 0, .z = 0 };
+
 float fov_factor = 640; 
 
 bool is_running = false;
@@ -54,30 +56,6 @@ void process_input(void){
                 is_running = false;
                 break;
             }
-            if (event.key.keysym.sym == SDLK_w){
-                camera_position.z -= 0.4;
-                break;
-            }
-            if (event.key.keysym.sym == SDLK_s){
-                camera_position.z += 0.4;
-                break;
-            }
-            if (event.key.keysym.sym == SDLK_e){
-                camera_position.y += 0.3;
-                break;
-            }
-            if (event.key.keysym.sym == SDLK_d){
-                camera_position.y -= 0.3;
-                break;
-            }
-            if (event.key.keysym.sym == SDLK_r){
-                camera_position.x -= 0.3;
-                break;
-            }
-            if (event.key.keysym.sym == SDLK_f){
-                camera_position.x += 0.3;
-                break;
-            }
     }
 }
 
@@ -91,14 +69,22 @@ vec2_t project(vec3_t point){
 }
 
 void update(void){
+    cube_rotation.x += 0.01;
+    cube_rotation.y += 0.01; 
+    cube_rotation.z += 0.01;
+
     for (int i = 0; i < N_POINTS; i++){
         vec3_t point = cube_points[i];
 
-        point.z -= camera_position.z;
-        point.x -= camera_position.x;
-        point.y -= camera_position.y;
+        vec3_t transformed_point = vec3_rotate_x(point, cube_rotation.x);
+        transformed_point = vec3_rotate_y(transformed_point, cube_rotation.y);
+        transformed_point = vec3_rotate_z(transformed_point, cube_rotation.z);
+
+        // translate the points away from camera
+        transformed_point.z -= camera_position.z;
+
         //project point
-        vec2_t projected_point = project(point);
+        vec2_t projected_point = project(transformed_point);
         //Save the projected 2D vector in the array of projected points
         projected_points[i] = projected_point;
     }
@@ -126,16 +112,33 @@ void render(void){
 }
 
 int main(void) {
+    // initialize renderer
     is_running = initialize_window();
-    
     setup();
 
+    // declare FPS Count variables
+    Uint64 startTickCount;
+    Uint64 end;
+    long int frame_count = 0;
+
     while(is_running){
+        // get start tick count to calculate FPS
+        startTickCount = SDL_GetPerformanceCounter();
+
+        // Rendering main loop
         process_input();
         update();
         render();
-    }
 
+        //get end tick and calculate FPS
+        end = SDL_GetPerformanceCounter();
+        frame_count++;
+        float elapsed = (end - startTickCount) / (float)SDL_GetPerformanceFrequency();
+        if(frame_count % 120 == 0){
+            printf("FPS: %f \n", (1.0f / elapsed));
+        }
+    }
+    
     destroy_window();
 
     return 0;
