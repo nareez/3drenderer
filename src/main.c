@@ -57,6 +57,8 @@ void process_input(void){
                 is_running = false;
                 break;
             }
+        case SDL_WINDOWEVENT_CLOSE:
+            is_running = false;
     }
 }
 
@@ -70,7 +72,13 @@ vec2_t project(vec3_t point){
 }
 
 void update(void){
-    while (!SDL_TICKS_PASSED(SDL_GetTicks(), previous_frame_time + FRAME_TARGET_TIME));
+    // calculate time to next frame
+    int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
+    
+    // delay time until next frame
+    if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME){
+        SDL_Delay(time_to_wait);
+    }
 
     previous_frame_time = SDL_GetTicks();
 
