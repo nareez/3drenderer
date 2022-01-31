@@ -6,7 +6,7 @@
 #include "vector.h"
 
 //Declare an Array of Vector/points
-const int N_POINTS = 9 * 9 * 9;
+#define N_POINTS (9 * 9 * 9)
 vec3_t cube_points[9 * 9 * 9]; // 9x9x9 cube
 vec2_t projected_points[N_POINTS];
 
