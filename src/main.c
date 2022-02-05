@@ -39,7 +39,7 @@ void process_input(void){
             is_running = false;
             break;
         case SDL_KEYDOWN: 
-            if (event.key.keysym.sym == SDLK_ESCAPE){
+            if (event.key.keysym.sym == SDLK_ESCAPE){ 
                 is_running = false;
                 break;
             }
@@ -108,7 +108,6 @@ void update(void){
 }
 
 void render(void){
-    uint32_t color = 0xff00ffff;
     draw_grid(50);
 
     //loop all triangles and render
@@ -118,9 +117,10 @@ void render(void){
         draw_rect(triangle.points[0].x, triangle.points[0].y, 3, 3, 0xFFFFFF00);
         draw_rect(triangle.points[1].x, triangle.points[1].y, 3, 3, 0xFFFFFF00);
         draw_rect(triangle.points[2].x, triangle.points[2].y, 3, 3, 0xFFFFFF00);
-        draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, color);
-        draw_line(triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, color);
-        draw_line(triangle.points[2].x, triangle.points[2].y, triangle.points[0].x, triangle.points[0].y, color);
+        draw_triangle(triangle.points[0].x, triangle.points[0].y
+                     ,triangle.points[1].x, triangle.points[1].y
+                     ,triangle.points[2].x, triangle.points[2].y
+                     , 0xff00ff00);
     }
 
     render_color_buffer(); 
