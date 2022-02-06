@@ -4,8 +4,8 @@ __lua__
 //main
 function project(point)
  projected_point = {}
- projected_point.x = (fov_factor * point[x_ix]) / point[z_ix]
- projected_point.y = (fov_factor * point[y_ix]) / point[z_ix]
+ projected_point.x = (fov_factor * point[x_ix]) / (point[z_ix])
+ projected_point.y = (fov_factor * point[y_ix]) / (point[z_ix])
  return projected_point
 end
 
@@ -13,10 +13,10 @@ function _init()
  cls(0)
 end
 
-function _update()
- cube_rotation.x += 0.005
- cube_rotation.y += 0.006
- cube_rotation.z += 0.007
+function _update60()
+ cube_rotation.x += 0.002
+ cube_rotation.y += 0.002
+ cube_rotation.z += 0.002
 
 	for i=1,#cube_faces do
 	 mesh_face = cube_faces[i]
@@ -91,9 +91,9 @@ c_ix = 3
 col = 12 //color
 
 camera_position = {}
-camera_position.z = -30
+camera_position.z = -19
 
-fov_factor = 640
+fov_factor = 680
 
 triangles_to_render = {}
 
@@ -155,8 +155,8 @@ end
 
 function vec3_rotate_z(v,angle)
  rotated_vector = {
-  v[x_ix] * cos(angle) - v[z_ix] * sin(angle),
-  v[x_ix] * sin(angle) + v[z_ix] * cos(angle),
+  v[x_ix] * cos(angle) - v[y_ix] * sin(angle),
+  v[x_ix] * sin(angle) + v[y_ix] * cos(angle),
   v[z_ix]
  }
  return rotated_vector
