@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "array.h"
 #include "mesh.h"
 
@@ -49,4 +51,67 @@ void load_cube_mesh_data(void){
         face_t cube_face = cube_faces[i];
         array_push(mesh.faces, cube_face);
     }
+}
+
+void push_vertice(char* line){
+    char* type;
+    char* v1;
+    char* v2;
+    char* v3;
+    vec3_t cube_vertex;
+
+    type = strtok(line, " ");
+    v1 = strtok(NULL, " ");
+    v2 = strtok(NULL, " ");
+    v3 = strtok(NULL, " ");
+
+    cube_vertex.x = atof(v1);
+    cube_vertex.y = atof(v2);
+    cube_vertex.z = atof(v3);
+
+    array_push(mesh.vertices, cube_vertex);
+}
+
+
+void push_face(char* line){
+    char* type;
+    char* v1;
+    char* v2;
+    char* v3;
+    face_t cube_face;
+
+    type = strtok(line, " ");  
+    v1 = strtok(NULL, " ");
+    v2 = strtok(NULL, " ");
+    v3 = strtok(NULL, " ");
+
+    v1 = strtok(v1, "/");
+    v2 = strtok(v2, "/");
+    v3 = strtok(v3, "/");
+
+    cube_face.a = atof(v1);
+    cube_face.b = atof(v2);
+    cube_face.c = atof(v3);
+
+    array_push(mesh.faces, cube_face);
+}
+
+void load_obj_file_data(char* fileName){
+    FILE* file;
+    char buff[255];
+    file = fopen(fileName,"r");
+    if (file == NULL) return;
+
+    while (fgets(buff, sizeof(buff), file) != NULL){
+        switch (buff[0]){
+        case 'v':
+            if(buff[1] == ' ') push_vertice(buff);
+            break;
+        case 'f':
+            push_face(buff);
+            break;
+        }   
+    }
+
+    fclose(file);
 }
