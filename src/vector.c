@@ -79,6 +79,15 @@ vec3_t vec3_div(vec3_t a, float factor){
     return result;
 }
 
+vec3_t vec3_cross(vec3_t a, vec3_t b){
+    vec3_t result = {
+        .x = a.y * b.z - a.z * b.y,
+        .y = a.z * b.x - a.x * b.z,
+        .z = a.x * b.y - a.y * b.x
+    };
+    return result;
+}
+
 // vector 3D rotation functions
 vec3_t vec3_rotate_x(vec3_t v, float angle){
     vec3_t rotated_vector = {
