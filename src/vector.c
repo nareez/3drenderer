@@ -1,6 +1,85 @@
 #include <math.h>
 #include "vector.h"
 
+// vector 2D functions
+float vec2_length(vec2_t v){
+    return sqrt((v.x * v.x) + (v.y * v.y));
+}
+
+vec2_t vec2_add(vec2_t a, vec2_t b){
+    vec2_t result = {
+        .x = a.x + b.x,
+        .y = a.y + b.y
+    };
+    return result;
+}
+
+vec2_t vec2_sub(vec2_t a, vec2_t b){
+    vec2_t result = {
+        .x = a.x - b.x,
+        .y = a.y - b.y
+    };
+    return result;
+}
+
+vec2_t vec2_mul(vec2_t a, float factor){
+    vec2_t result = {
+        .x = a.x * factor,
+        .y = a.y * factor
+    };
+    return result;
+}
+
+vec2_t vec2_div(vec2_t a, float factor){
+    vec2_t result = {
+        .x = a.x / factor,
+        .y = a.y / factor
+    };
+    return result;
+}
+
+// vector 3D functions
+float vec3_length(vec3_t v){
+    return sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
+}
+
+vec3_t vec3_add(vec3_t a, vec3_t b){
+    vec3_t result = {
+        .x = a.x + b.x,
+        .y = a.y + b.y,
+        .z = a.z + b.z
+    };
+    return result;
+}
+
+vec3_t vec3_sub(vec3_t a, vec3_t b){
+    vec3_t result = {
+        .x = a.x - b.x,
+        .y = a.y - b.y,
+        .z = a.z - b.z
+    };
+    return result;
+}
+
+vec3_t vec3_mul(vec3_t a, float factor){
+    vec3_t result = {
+        .x = a.x * factor,
+        .y = a.y * factor,
+        .z = a.z * factor
+    };
+    return result;
+}
+
+vec3_t vec3_div(vec3_t a, float factor){
+    vec3_t result = {
+        .x = a.x / factor,
+        .y = a.y / factor,
+        .z = a.z / factor
+    };
+    return result;
+}
+
+// vector 3D rotation functions
 vec3_t vec3_rotate_x(vec3_t v, float angle){
     vec3_t rotated_vector = {
         .x = v.x,
