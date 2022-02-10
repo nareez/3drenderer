@@ -115,8 +115,15 @@ void update(void){
         vec3_t vector_ab = vec3_sub(vector_b, vector_a);
         vec3_t vector_ac = vec3_sub(vector_c, vector_a);
 
+        // Normalize
+        vec3_normalize(&vector_ab);
+        vec3_normalize(&vector_ac);
+
         // Compute the face normal (using cross product to find perpendicular)
         vec3_t normal = vec3_cross(vector_ab, vector_ac);
+
+        // Normalize the face normal vector
+        vec3_normalize(&normal);
 
         // find the vector ray between camera position and a point in triangle
         vec3_t camera_ray = vec3_sub(camera_position, vector_a);
