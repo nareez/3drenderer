@@ -4,8 +4,8 @@ __lua__
 //main
 function project(point)
  projected_point = {}
- projected_point.x = (fov_factor * point[x_ix]) / (point[z_ix])
- projected_point.y = (fov_factor * point[y_ix]) / (point[z_ix])
+ projected_point.x = (fov_factor * point.x) / (point.z)
+ projected_point.y = (fov_factor * point.y) / (point.z)
  return projected_point
 end
 
@@ -21,10 +21,10 @@ function _update60()
 	for i=1,#cube_faces do
 	 mesh_face = cube_faces[i]
 	 face_vertices = {}
-
-	 face_vertices[1] = cube_vertices[mesh_face[a_ix]]
-	 face_vertices[2] = cube_vertices[mesh_face[b_ix]]
-	 face_vertices[3] = cube_vertices[mesh_face[c_ix]]
+    
+	 face_vertices[1] = cube_vertices[mesh_face.a]
+	 face_vertices[2] = cube_vertices[mesh_face.b]
+	 face_vertices[3] = cube_vertices[mesh_face.c]
 	 
 	 projected_triagle = {}
 	 
@@ -35,7 +35,7 @@ function _update60()
 	  transformed_vertex = vec3_rotate_y(transformed_vertex, cube_rotation.y)
 	  transformed_vertex = vec3_rotate_z(transformed_vertex, cube_rotation.z)	 
    
-   transformed_vertex[z_ix] -= camera_position.z
+   transformed_vertex.z -= camera_position.z
    
    projected_point = project(transformed_vertex)
    
@@ -71,24 +71,16 @@ function draw_triangle(x0,y0,x1,y1,x2,y2,col)
  line(x0,y0,x1,y1,col)
  line(x1,y1,x2,y2,col)
  line(x2,y2,x0,y0,col)
- colo = 4
- rectfill(x0,y0,x0+2,y0+2,colo)
- rectfill(x1,y1,x1+2,y1+2,colo)
- rectfill(x2,y2,x2+2,y2+2,colo)
+ colo = 10
+ rectfill(x0,y0,x0+1,y0+1,colo)
+ rectfill(x1,y1,x1+1,y1+1,colo)
+ rectfill(x2,y2,x2+1,y2+1,colo)
 end
 
 
 -->8
 //global variables
-x_ix = 1
-y_ix = 2
-z_ix = 3
-
-a_ix = 1
-b_ix = 2
-c_ix = 3
-
-col = 12 //color
+col = 11 //color
 
 camera_position = {}
 camera_position.z = -19
@@ -103,61 +95,61 @@ cube_rotation.y = 0
 cube_rotation.z = 0
 
 cube_vertices = {
-    { -1, -1, -1 }, // 1
-    { -1,  1, -1 }, // 2
-    {  1,  1, -1 }, // 3
-    {  1, -1, -1 }, // 4
-    {  1,  1,  1 }, // 5
-    {  1, -1,  1 }, // 6
-    { -1,  1,  1 }, // 7
-    { -1, -1,  1 }  // 8
+    { x=-1, y=-1, z=-1 }, // 1
+    { x=-1, y=1,  z=-1 }, // 2
+    { x=1,  y=1,  z=-1 }, // 3
+    { x=1,  y=-1, z=-1 }, // 4
+    { x=1,  y=1,  z=1 }, // 5
+    { x=1,  y=-1, z=1 }, // 6
+    { x=-1, y=1,  z=1 }, // 7
+    { x=-1, y=-1, z=1 }  // 8
 }
 
 cube_faces = {
     // front
-    {1,2,3},
-    {1,3,4},
+    {a=1,b=2,c=3},
+    {a=1,b=3,c=4},
     // right
-    {4,3,5},
-    {4,5,6},
+    {a=4,b=3,c=5},
+    {a=4,b=5,c=6},
     // back
-    {6,5,7},
-    {6,7,8},
+    {a=6,b=5,c=7},
+    {a=6,b=7,c=8},
     // left
-    {8,7,2},
-    {8,2,1},
+    {a=8,b=7,c=2},
+    {a=8,b=2,c=1},
     // top
-    {2,7,5},
-    {2,5,3},
+    {a=2,b=7,c=5},
+    {a=2,b=5,c=3},
     // bottom
-    {6,8,1},
-    {6,1,4}
+    {a=6,b=8,c=1},
+    {a=6,b=1,c=4}
 }
 -->8
 //vector
 function vec3_rotate_x(v,angle)
  rotated_vector = {
-  v[x_ix],
-  v[y_ix] * cos(angle) - v[z_ix] * sin(angle),
-  v[y_ix] * sin(angle) + v[z_ix] * cos(angle)
+  x=v.x,
+  y=v.y * cos(angle) - v.z * sin(angle),
+  z=v.y * sin(angle) + v.z * cos(angle)
  }
  return rotated_vector
 end
 
 function vec3_rotate_y(v,angle)
  rotated_vector = {
-  v[x_ix] * cos(angle) - v[z_ix] * sin(angle),
-  v[y_ix],
-  v[x_ix] * sin(angle) + v[z_ix] * cos(angle)
+  x=v.x * cos(angle) - v.z * sin(angle),
+  y=v.y,
+  z=v.x * sin(angle) + v.z * cos(angle)
  }
  return rotated_vector
 end
 
 function vec3_rotate_z(v,angle)
  rotated_vector = {
-  v[x_ix] * cos(angle) - v[y_ix] * sin(angle),
-  v[x_ix] * sin(angle) + v[y_ix] * cos(angle),
-  v[z_ix]
+  x=v.x * cos(angle) - v.y * sin(angle),
+  y=v.x * sin(angle) + v.y * cos(angle),
+  z=v.z
  }
  return rotated_vector
 end
