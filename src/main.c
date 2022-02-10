@@ -9,7 +9,7 @@
 
 triangle_t* triangles_to_render = NULL;
 
-vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
+vec3_t camera_position = { .x = 0, .y = 0, .z = 0 };
 vec3_t cube_rotation = { .x = 0, .y = 0, .z = 0 };
 
 float fov_factor = 640; 
@@ -88,7 +88,9 @@ void update(void){
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-        triangle_t projected_triangle;
+
+
+        vec3_t transformed_vertices[3];
 
         for (int j = 0; j < 3; j++) {
             vec3_t transformed_vertex = face_vertices[j];
@@ -98,20 +100,46 @@ void update(void){
             transformed_vertex = vec3_rotate_z(transformed_vertex, cube_rotation.z);
 
             // translate away from the camera
-            transformed_vertex.z -= camera_position.z;
+            transformed_vertex.z += 5;
 
+            // Save transformed vertex in the array of transformed vertices
+            transformed_vertices[j] = transformed_vertex;
+        }
+
+        // check backface culling
+        vec3_t vector_a = transformed_vertices[0]; /*    A   */
+        vec3_t vector_b = transformed_vertices[1]; /*  /  \  */
+        vec3_t vector_c = transformed_vertices[2]; /* B---C  */
+
+        // get vector subtraction of B-A and C-A
+        vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+        vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+
+        // Compute the face normal (using cross product to find perpendicular)
+        vec3_t normal = vec3_cross(vector_ab, vector_ac);
+
+        // find the vector ray between camera position and a point in triangle
+        vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+
+        // Calculate how aligned the camera ray is with the face normal (using dot product)
+        float dot_normal_camera = vec3_dot(normal, camera_ray);
+        // bypass the triangles that are looking away from camera
+        if (dot_normal_camera < 0) continue;
+
+        // loop all tree vertices to perform projection
+        triangle_t projected_triangle;
+        for (int j = 0; j < 3; j++) {
             // project current vertex
-            vec2_t projected_point = project(transformed_vertex);
+            vec2_t projected_point = project(transformed_vertices[j]);
 
             // scale and translate to the middle of the screen
             projected_point.x += (window_width / 2);
             projected_point.y += (window_height / 2);
 
             projected_triangle.points[j] = projected_point;
-          
         }
-
         array_push(triangles_to_render, projected_triangle);
+        
     }
 }
 
