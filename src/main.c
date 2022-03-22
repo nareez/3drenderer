@@ -7,6 +7,7 @@
 #include "vector.h"
 #include "mesh.h"
 #include "matrix.h"
+#include "light.h"
 
 // Globals
 triangle_t* triangles_to_render = NULL;
@@ -43,8 +44,8 @@ void setup(void){
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
     // load the cube values in the mesh data structure
-    // load_obj_file_data("./assets/cube.obj");
-    load_cube_mesh_data();
+    load_obj_file_data("./assets/f22.obj");
+    // load_cube_mesh_data();
 }
 
 void process_input(void){ 
@@ -142,7 +143,7 @@ void update(void){
             // Save transformed vertex in the array of transformed vertices
             transformed_vertices[j] = transformed_vertex;
         }
-         if(cull_method == CULL_BACKFACE){
+         
                 // check backface culling
             vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]); /*    A   */
             vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]); /*  /  \  */
@@ -167,6 +168,7 @@ void update(void){
 
             // Calculate how aligned the camera ray is with the face normal (using dot product)
             float dot_normal_camera = vec3_dot(normal, camera_ray);
+        if(cull_method == CULL_BACKFACE){
             // bypass the triangles that are looking away from camera
             if (dot_normal_camera < 0) continue;
         }
@@ -181,12 +183,22 @@ void update(void){
             projected_points[j].x *= (window_width / 2.0);
             projected_points[j].y *= (window_height / 2.0);
 
+            // Invert the Y values to account for flipped screen y coordinate
+            projected_points[j].y *= -1;
+
             //translate to the middle of the screen
             projected_points[j].x += (window_width / 2.0);
             projected_points[j].y += (window_height / 2.0);
         }
 
+        // calculate the average depth for each face based on the vertices after the transformation
         float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
+
+        //calculate the shade intensity based on how aliged is the face normal and the inverse of the light ray
+        float light_intensity_factor = -vec3_dot(normal, light.direction);
+        
+        //calculate the triangle color based on the light angle
+        uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
 
         triangle_t projected_triangle = {
             .points = {
@@ -194,7 +206,7 @@ void update(void){
                 { projected_points[1].x, projected_points[1].y },
                 { projected_points[2].x, projected_points[2].y },
             },
-            .color = mesh_face.color,
+            .color = triangle_color,
             .avg_depth = avg_depth
         };
         
