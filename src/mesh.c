@@ -61,6 +61,12 @@ void push_vertice_from_obj_line(char* line){
     array_push(mesh.vertices, vertex);
 }
 
+tex2_t* texcoords;
+void push_texture_coords_from_obj_line(char* line){
+    tex2_t texcoord;
+    sscanf(line, "vt %f %f", &texcoord.u, &texcoord.v);
+    array_push(texcoords, texcoord);
+}
 
 void push_face_from_obj_line(char* line){
     int vertex_indices[3];
@@ -73,9 +79,12 @@ void push_face_from_obj_line(char* line){
            &vertex_indices[2], &texture_indices[2], &normal_indices[2]);
 
     face_t face = { 
-        .a = vertex_indices[0],
-        .b = vertex_indices[1],
-        .c = vertex_indices[2],
+        .a = vertex_indices[0] - 1,
+        .b = vertex_indices[1] - 1,
+        .c = vertex_indices[2] - 1,
+        .a_uv = texcoords[texture_indices[0] - 1],
+        .b_uv = texcoords[texture_indices[1] - 1],
+        .c_uv = texcoords[texture_indices[2] - 1],
         .color = 0xffffffff
     };
     array_push(mesh.faces, face);
@@ -92,8 +101,12 @@ void load_obj_file_data(char* fileName){
             push_vertice_from_obj_line(buff);
         } else if (strncmp(buff, "f ", 2) == 0){
             push_face_from_obj_line(buff);
-        }  
+        } else if (strncmp(buff, "vt ", 3) == 0){
+            push_texture_coords_from_obj_line(buff);
+        }
     }
+
+    array_free(texcoords);
 
     fclose(file);
 }

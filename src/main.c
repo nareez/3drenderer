@@ -22,7 +22,7 @@ mat4_t proj_matrix;
 void setup(void){
     //initialize the render mode
 
-    render_method = RENDER_WIRE;
+    render_method = RENDER_TEXTURED;
     cull_method = CULL_BACKFACE;
 
     // Allocate color buffer
@@ -45,11 +45,11 @@ void setup(void){
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
     // load the cube values in the mesh data structure
-    load_obj_file_data("./assets/cube.obj");
+    load_obj_file_data("./assets/drone.obj");
     // load_cube_mesh_data();
 
     // load the texture information from an external PNG file
-    load_png_texture_data("./assets/cube.png");
+    load_png_texture_data("./assets/drone.png");
 }
 
 void process_input(void){ 
@@ -131,9 +131,9 @@ void update(void){
     for (int i = 0; i < num_faces; i++) {
         face_t mesh_face = mesh.faces[i];
         vec3_t face_vertices[3];
-        face_vertices[0] = mesh.vertices[mesh_face.a - 1];
-        face_vertices[1] = mesh.vertices[mesh_face.b - 1];
-        face_vertices[2] = mesh.vertices[mesh_face.c - 1];
+        face_vertices[0] = mesh.vertices[mesh_face.a];
+        face_vertices[1] = mesh.vertices[mesh_face.b];
+        face_vertices[2] = mesh.vertices[mesh_face.c];
 
         vec4_t transformed_vertices[3];
 
