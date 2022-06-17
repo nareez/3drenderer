@@ -11,7 +11,10 @@
 #include "texture.h"
 
 // Globals
-triangle_t* triangles_to_render = NULL;
+#define MAX_TRIANGLES_PER_MESH 10000
+
+triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
+int num_triangles_to_render = 0;
 
 vec3_t camera_position = { .x = 0, .y = 0, .z = 0 };
 
@@ -47,11 +50,11 @@ void setup(void){
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
     // load the cube values in the mesh data structure
-    load_obj_file_data("./assets/f117.obj");
+    load_obj_file_data("./assets/drone.obj");
     // load_cube_mesh_data();
 
     // load the texture information from an external PNG file
-    load_png_texture_data("./assets/f117.png");
+    load_png_texture_data("./assets/drone.png");
 }
 
 void process_input(void){ 
@@ -111,7 +114,7 @@ void update(void){
     previous_frame_time = SDL_GetTicks();
 
     // initialize the array to render
-    triangles_to_render = NULL;
+    num_triangles_to_render = 0;
 
     // change the mesh scale/rotation values per animation frame
     mesh.rotation.x += 0.01;
@@ -225,7 +228,11 @@ void update(void){
             .color = triangle_color
         };
         
-        array_push(triangles_to_render, projected_triangle);
+        if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH){
+            triangles_to_render[num_triangles_to_render] = projected_triangle;
+            num_triangles_to_render++;
+        }
+        
     }
     
 }
@@ -234,8 +241,7 @@ void render(void){
     draw_grid(50);
 
     // loop all triangles and render
-    int num_triangles = array_length(triangles_to_render);
-    for (int i = 0; i < num_triangles; i++){
+    for (int i = 0; i < num_triangles_to_render; i++){
         triangle_t triangle = triangles_to_render[i];
         
         // Draw filled triangle
@@ -267,7 +273,6 @@ void render(void){
     }
 
     //clear array of triangles to render
-    array_free(triangles_to_render);
     render_color_buffer(); 
     clear_color_buffer(0xFF000000);
     clear_z_buffer();
