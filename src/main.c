@@ -9,6 +9,7 @@
 #include "matrix.h"
 #include "light.h"
 #include "texture.h"
+#include "camera.h"
 
 // Globals
 #define MAX_TRIANGLES_PER_MESH 10000
@@ -16,11 +17,15 @@
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
-vec3_t camera_position = { .x = 0, .y = 0, .z = 0 };
 
 bool is_running = false;
 int previous_frame_time = 0;
+float delta_time = 0;
+
+//Global transformations
 mat4_t proj_matrix;
+mat4_t view_matrix;
+mat4_t world_matrix;
 
 void setup(void){
     //initialize the render mode
@@ -50,11 +55,11 @@ void setup(void){
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
     // load the cube values in the mesh data structure
-    load_obj_file_data("./assets/drone.obj");
+    load_obj_file_data("./assets/f22.obj");
     // load_cube_mesh_data();
 
     // load the texture information from an external PNG file
-    load_png_texture_data("./assets/drone.png");
+    load_png_texture_data("./assets/f22.png");
 }
 
 void process_input(void){ 
@@ -91,8 +96,28 @@ void process_input(void){
                 case SDLK_c:
                     cull_method = CULL_BACKFACE;
                     break;
-                case SDLK_d:
+                case SDLK_x:
                     cull_method = CULL_NONE;
+                    break;
+                case SDLK_UP:
+                    camera.position.y += 3.0 * delta_time;
+                    break;
+                case SDLK_DOWN:
+                    camera.position.y -= 3.0 * delta_time;
+                    break;
+                case SDLK_w:
+                    camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time);
+                    camera.position = vec3_add(camera.position, camera.forward_velocity);
+                    break;
+                case SDLK_s:
+                    camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time);
+                    camera.position = vec3_sub(camera.position, camera.forward_velocity);
+                    break;
+                case SDLK_d:
+                    camera.yaw += 1.0 * delta_time;
+                    break;
+                case SDLK_a:
+                    camera.yaw -= 1.0 * delta_time;
                     break;
             }
             break;
@@ -111,19 +136,37 @@ void update(void){
     if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME){
         SDL_Delay(time_to_wait);
     }
+
+    // Get a delta time factor to sync movement
+    delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0;
+
     previous_frame_time = SDL_GetTicks();
 
     // initialize the array to render
     num_triangles_to_render = 0;
 
     // change the mesh scale/rotation values per animation frame
-    mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
-    // mesh.scale.x += 0.003;
-    // mesh.scale.y += 0.001;
-    // mesh.translation.x += 0.01;
-    mesh.translation.z = 5.0;
+    // mesh.rotation.x += 0.01 * delta_time;
+    // mesh.rotation.y += 0.01 * delta_time;
+    // mesh.rotation.z += 0.01 * delta_time;
+    // mesh.scale.x += 0.003 * delta_time;
+    // mesh.scale.y += 0.001 * delta_time;
+    // mesh.translation.x += 0.01 * delta_time;
+    mesh.translation.z = 4.0;
+
+    // Create the view matrix
+    vec3_t up_direction = {0, 1, 0};
+
+    // Initialize target looking at the positive z-axis
+    vec3_t target = {0, 0, 1};
+    mat4_t camera_yaw_rotation = mat4_make_rotation_y(camera.yaw);
+    camera.direction = vec3_from_vec4(mat4_mul_vec4(camera_yaw_rotation, vec4_from_vec3(target)));
+
+    // Offset the camera position in the direction where the camera is pointing at
+
+    target = vec3_add(camera.position, camera.direction);
+    
+    view_matrix = mat4_look_at(camera.position, target, up_direction);
 
     // create a rotation, scale and translation matrix that will be used to multiply the mesh vertices
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -146,7 +189,7 @@ void update(void){
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
             // create a World Matrix combining scale, rotation and translation matrices
-            mat4_t world_matrix = mat4_identity();
+            world_matrix = mat4_identity();
             world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
@@ -154,6 +197,9 @@ void update(void){
             world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
             
             transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
+
+            // Multiply the view matrix by the vector to transform the scene do camera view
+            transformed_vertex = mat4_mul_vec4(view_matrix, transformed_vertex);
 
             // Save transformed vertex in the array of transformed vertices
             transformed_vertices[j] = transformed_vertex;
@@ -179,7 +225,8 @@ void update(void){
             vec3_normalize(&normal);
 
             // find the vector ray between camera position and a point in triangle
-            vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+            vec3_t origin = {0, 0, 0};
+            vec3_t camera_ray = vec3_sub(origin, vector_a);
 
             // Calculate how aligned the camera ray is with the face normal (using dot product)
             float dot_normal_camera = vec3_dot(normal, camera_ray);
