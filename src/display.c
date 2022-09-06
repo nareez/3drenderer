@@ -1,14 +1,23 @@
 #include "display.h"
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-uint32_t* color_buffer = NULL;
-SDL_Texture* color_buffer_texture = NULL;
-float* z_buffer = NULL;
+static SDL_Window* window = NULL;
+static SDL_Renderer* renderer = NULL;
+static uint32_t* color_buffer = NULL;
+static SDL_Texture* color_buffer_texture = NULL;
+static float* z_buffer = NULL;
 
-int window_width = 1000;
-int window_height = 800;
+static int window_width = 1000;
+static int window_height = 800;
 
+static int render_method = RENDER_WIRE;
+static int cull_method = CULL_BACKFACE;
+
+int get_window_width(void){
+    return window_width;
+}
+int get_window_height(void){
+    return window_height;
+}
 
 bool initialize_window(void){
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -46,6 +55,20 @@ bool initialize_window(void){
 
     //uncomment to full screen
     // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+
+    // Allocate color buffer
+    color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
+    z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
+    clear_z_buffer();
+
+    // Create a SDL Texture that is used to draw the buffer
+    color_buffer_texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_STREAMING,
+        window_width,
+        window_height
+    );
 
     return true;
 }
@@ -109,13 +132,12 @@ void render_color_buffer(void){
         (window_width * sizeof(uint32_t))
     );
     SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 void clear_color_buffer(uint32_t color){
-    for(int y = 0; y < window_height; y++){
-        for(int x = 0; x < window_width; x++){
-            color_buffer[(window_width * y) + x] = color;
-        }
+    for(int i = 0; i < window_width * window_height; i++){
+        color_buffer[i] = color;
     }
 }
 
@@ -126,9 +148,50 @@ void destroy_window(void){
 }
 
 void clear_z_buffer(void){
-    for(int y = 0; y < window_height; y++){
-        for(int x = 0; x < window_width; x++){
-            z_buffer[(window_width * y) + x] = 1.0;
-        }
+    for(int i = 0; i < window_width * window_height; i++){
+        z_buffer[i] = 1.0;
     }
 }
+
+float get_zbuffer_at(int x, int y){
+    if (x >= 0 && y >=0 && x < window_width && y < window_height){
+        return z_buffer[(window_width * y) + x];
+    }
+    return 1.0;
+}
+
+void set_zbuffer_at(int x, int y, float value){
+    if (x >= 0 && y >=0 && x < window_width && y < window_height){
+        z_buffer[(window_width * y) + x] = value;
+    }
+}
+
+void set_render_method(int rm){
+    render_method = rm;
+}
+
+void set_cull_method(int cm){
+    cull_method = cm;
+}
+
+bool is_cull_backface(){
+    return cull_method == CULL_BACKFACE;
+}
+
+bool should_render_filled_triangles(void){
+    return render_method == RENDER_FILL_TRIANGLE 
+        || render_method == RENDER_FILL_TRIANGLE_WIRE;
+}
+
+bool should_render_textured_triangles(void){
+    return render_method == RENDER_TEXTURED 
+        || render_method == RENDER_TEXTURED_WIRE;
+}
+
+bool should_render_wireframe_triangles(void){
+    return render_method == RENDER_WIRE 
+        || render_method == RENDER_WIRE_VERTEX 
+        || render_method == RENDER_FILL_TRIANGLE_WIRE 
+        || render_method == RENDER_TEXTURED_WIRE;
+}
+
