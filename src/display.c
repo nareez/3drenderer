@@ -27,18 +27,18 @@ bool initialize_window(void){
 
     //uncomment to fullscreen
     //Get max resolution
-    // SDL_DisplayMode display_mode;
-    // SDL_GetCurrentDisplayMode(0, &display_mode);
-    // window_width = display_mode.w;
-    // window_height = display_mode.h;
+    SDL_DisplayMode display_mode;
+    SDL_GetCurrentDisplayMode(0, &display_mode);
+    int full_window_width = display_mode.w;
+    int full_window_height = display_mode.h;
 
     //Create SQL Window
     window = SDL_CreateWindow(
         NULL,
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        window_width,
-        window_height,
+        full_window_width,
+        full_window_height,
         0 // SDL_WINDOW_BORDERLESS //uncomment to remove borders 
     );
     if(!window) {

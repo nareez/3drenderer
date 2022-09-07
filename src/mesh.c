@@ -4,71 +4,36 @@
 #include "array.h"
 #include "mesh.h"
 
-mesh_t mesh = {
-    .vertices = NULL,
-    .faces = NULL,
-    .rotation = {0, 0, 0},
-    .scale = {1.0, 1.0, 1.0},
-    .translation = {0, 0, 0}
-};
+#define MAX_NUM_MESHES 10
+static mesh_t meshes[MAX_NUM_MESHES];
+int mesh_count = 0;
 
-vec3_t cube_vertices[N_CUBE_VERTICES] = {
-    { .x = -1, .y = -1, .z = -1 }, // 1
-    { .x = -1, .y =  1, .z = -1 }, // 2
-    { .x =  1, .y =  1, .z = -1 }, // 3
-    { .x =  1, .y = -1, .z = -1 }, // 4
-    { .x =  1, .y =  1, .z =  1 }, // 5
-    { .x =  1, .y = -1, .z =  1 }, // 6
-    { .x = -1, .y =  1, .z =  1 }, // 7
-    { .x = -1, .y = -1, .z =  1 }  // 8
-};
+void load_mesh(char* obj_filename, char* png_filename, vec3_t scale
+             , vec3_t translation, vec3_t rotation){
+    load_obj_file_data(&meshes[mesh_count], obj_filename);
+    load_mesh_png_data(&meshes[mesh_count], png_filename);
 
-face_t cube_faces[N_CUBE_FACES] = {
-    // front
-    { .a = 1, .b = 2, .c = 3, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 1, .b = 3, .c = 4, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // right
-    { .a = 4, .b = 3, .c = 5, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 4, .b = 5, .c = 6, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // back
-    { .a = 6, .b = 5, .c = 7, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 6, .b = 7, .c = 8, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // left
-    { .a = 8, .b = 7, .c = 2, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 8, .b = 2, .c = 1, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // top
-    { .a = 2, .b = 7, .c = 5, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 2, .b = 5, .c = 3, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // bottom
-    { .a = 6, .b = 8, .c = 1, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 6, .b = 1, .c = 4, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF }
-};
-
-void load_cube_mesh_data(void){
-    for (int i = 0; i < N_CUBE_VERTICES; i++) {
-        vec3_t cube_vertex = cube_vertices[i];
-        array_push(mesh.vertices, cube_vertex);
-    }
-    for (int i = 0; i < N_CUBE_FACES; i++){
-        face_t cube_face = cube_faces[i];
-        array_push(mesh.faces, cube_face);
-    }
+    meshes[mesh_count].scale = scale;
+    meshes[mesh_count].translation = translation;
+    meshes[mesh_count].rotation = rotation;
+    
+    mesh_count++;
 }
 
-void push_vertice_from_obj_line(char* line){
+void push_vertice_from_obj_line(mesh_t* mesh, char* line){
     vec3_t vertex;
     sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-    array_push(mesh.vertices, vertex);
+    array_push(mesh->vertices, vertex);
 }
 
 tex2_t* texcoords;
-void push_texture_coords_from_obj_line(char* line){
+void push_texture_coords_from_obj_line(mesh_t* mesh, char* line){
     tex2_t texcoord;
     sscanf(line, "vt %f %f", &texcoord.u, &texcoord.v);
     array_push(texcoords, texcoord);
 }
 
-void push_face_from_obj_line(char* line){
+void push_face_from_obj_line(mesh_t* mesh, char* line){
     int vertex_indices[3];
     int texture_indices[3];
     int normal_indices[3];
@@ -87,10 +52,10 @@ void push_face_from_obj_line(char* line){
         .c_uv = texcoords[texture_indices[2] - 1],
         .color = 0xffffffff
     };
-    array_push(mesh.faces, face);
+    array_push(mesh->faces, face);
 }
 
-void load_obj_file_data(char* fileName){
+void load_obj_file_data(mesh_t* mesh, char* fileName){
     FILE* file;
     char buff[1024];
     file = fopen(fileName,"r");
@@ -98,15 +63,44 @@ void load_obj_file_data(char* fileName){
 
     while (fgets(buff, sizeof(buff), file) != NULL){
         if (strncmp(buff, "v ", 2) == 0){
-            push_vertice_from_obj_line(buff);
+            push_vertice_from_obj_line(mesh, buff);
         } else if (strncmp(buff, "f ", 2) == 0){
-            push_face_from_obj_line(buff);
+            push_face_from_obj_line(mesh, buff);
         } else if (strncmp(buff, "vt ", 3) == 0){
-            push_texture_coords_from_obj_line(buff);
+            push_texture_coords_from_obj_line(mesh, buff);
         }
     }
 
     array_free(texcoords);
+    texcoords = NULL;
+       
 
     fclose(file);
+}
+
+
+void load_mesh_png_data(mesh_t* mesh, char* filename){
+    upng_t* png_image = upng_new_from_file(filename);
+    if (png_image != NULL){
+        upng_decode(png_image);
+        if (upng_get_error(png_image) == UPNG_EOK){
+            mesh->texture = png_image;
+        }
+    }
+}
+
+int get_num_meshes(void){
+    return mesh_count;
+}
+
+mesh_t* get_mesh(int index){
+    return &meshes[index];
+}
+
+void free_meshes(void){
+    for(int i = 0; i < mesh_count; i++){
+        upng_free(meshes[i].texture);
+        array_free(meshes[i].faces);
+        array_free(meshes[i].vertices);
+    }
 }

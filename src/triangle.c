@@ -181,7 +181,7 @@ void draw_filled_triangle(
 /////////////////////////////////////////////////////////////////////
 // Draw the textured pixel at position x and y using interpolation //
 /////////////////////////////////////////////////////////////////////
-void draw_texel(int x, int y, uint32_t* texture,
+void draw_texel(int x, int y, upng_t* texture,
                 vec4_t point_a, vec4_t point_b, vec4_t point_c,
                 tex2_t a_uv, tex2_t b_uv, tex2_t c_uv){
 
@@ -210,17 +210,24 @@ void draw_texel(int x, int y, uint32_t* texture,
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
+    // get texture info
+    int texture_width = upng_get_width(texture);
+    int texture_height = upng_get_height(texture);
+
     // Map UV coord to the full texture width and height
     int tex_x = abs((int) (interpolated_u * texture_width)) % texture_width;
-    int tex_y = abs((int) (interpolated_v * texture_width)) % texture_height;
+    int tex_y = abs((int) (interpolated_v * texture_height)) % texture_height;
     
     // Ajust 1/w so the pixels that are closer to the camera have smaller values
     interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
     // Only draw a pixel if the depth value is less than the previously stored in the z-buffer
-    if (interpolated_reciprocal_w < get_zbuffer_at(x, y)){
+    if (interpolated_reciprocal_w < get_zbuffer_at(x, y)){  
+        // Get the buffer of colors
+        uint32_t* texture_buffer = (uint32_t*) upng_get_buffer(texture);
+
         // Draw pixel at position X,Y
-        draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
+        draw_pixel(x, y, texture_buffer[(texture_width * tex_y) + tex_x]);
 
         //update the z-buffer value with the 1/w of the current pixel
         set_zbuffer_at(x, y, interpolated_reciprocal_w);
@@ -234,7 +241,7 @@ void draw_texel(int x, int y, uint32_t* texture,
 void draw_textured_triangle(int x0, int y0, float z0, float w0, float u0, float v0, 
                             int x1, int y1, float z1, float w1, float u1, float v1, 
                             int x2, int y2, float z2, float w2, float u2, float v2, 
-                            uint32_t* texture){
+                            upng_t* texture){
     if (y0 > y1){
         int_swap(&y0, &y1);
         int_swap(&x0, &x1);
