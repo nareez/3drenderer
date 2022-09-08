@@ -18,11 +18,8 @@
 ### Pico-8 version
 ![Wirefame cube](images/pico-8%20wireframe.png)
 
-### Pico-8 version
-![Wirefame cube](images/pico-8%20wireframe.png)
-
 ### Wireframe (Culled)
-![Wireframe Culled](images/culled wireframe.png)
+![Wireframe Culled](images/culled%20wireframe.png)
 
 ### Flat shaded with ilumination
 ![Flat shaded with ilumination](images/ilumination.png)
@@ -31,4 +28,4 @@
 ![Texturized](images/texturized.png)
 
 ### Texturized with wireframe
-![Texturized with wireframe](images/texturized wireframe.png)
+![Texturized with wireframe](images/texturized%20wireframe.png)
