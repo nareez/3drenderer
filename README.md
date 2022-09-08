@@ -7,6 +7,9 @@
 - SDL2
 - No 3D libs
 
+## Sega Megadrive (Genesis) version
+- https://github.com/nareez/3DRenderer-megadrive
+
 ## Screenshots:
 
 ### Flat cube
@@ -15,5 +18,17 @@
 ### Pico-8 version
 ![Wirefame cube](images/pico-8%20wireframe.png)
 
-### Sega Megadrive (Genesis) version
-- https://github.com/nareez/3DRenderer-megadrive
+### Pico-8 version
+![Wirefame cube](images/pico-8%20wireframe.png)
+
+### Wireframe (Culled)
+![Wireframe Culled](images/culled wireframe.png)
+
+### Flat shaded with ilumination
+![Flat shaded with ilumination](images/ilumination.png)
+
+### Texturized
+![Texturized](images/texturized.png)
+
+### Texturized with wireframe
+![Texturized with wireframe](images/texturized wireframe.png)
