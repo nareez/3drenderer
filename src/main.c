@@ -31,7 +31,7 @@ mat4_t world_matrix;
 
 void setup(void){
     //initialize the render mode
-    set_render_method(RENDER_WIRE);
+    set_render_method(RENDER_TEXTURED);
     set_cull_method(CULL_BACKFACE);
 
     // Initializa scene light direction
@@ -50,10 +50,13 @@ void setup(void){
     init_frustum_planes(fovX, fovY, znear, zfar);
 
    // Loads mesh entities
-    load_mesh("./assets/runway.obj", "./assets/runway.png", vec3_new(1, 1, 1), vec3_new(0, -1.5, +23), vec3_new(0, 0, 0));
+    // load_mesh("./assets/runway.obj", "./assets/runway.png", vec3_new(1, 1, 1), vec3_new(0, -1.5, +23), vec3_new(0, 0, 0));
     load_mesh("./assets/f22.obj", "./assets/f22.png", vec3_new(1, 1, 1), vec3_new(0, -1.3, +5), vec3_new(0, -M_PI/2, 0));
     load_mesh("./assets/efa.obj", "./assets/efa.png", vec3_new(1, 1, 1), vec3_new(-2, -1.3, +9), vec3_new(0, -M_PI/2, 0));
     load_mesh("./assets/f117.obj", "./assets/f117.png", vec3_new(1, 1, 1), vec3_new(+2, -1.3, +9), vec3_new(0, -M_PI/2, 0));
+
+    load_mesh("./assets/drone.obj", "./assets/drone.png", vec3_new(1, 1, 1), vec3_new(-2, 0, +12), vec3_new(0, M_PI, 0));
+    load_mesh("./assets/crab.obj", "./assets/crab.png", vec3_new(1, 1, 1), vec3_new(+2, 0.9, +12), vec3_new(0, M_PI, 0));
 }
 
 void process_input(void){ 
@@ -151,7 +154,7 @@ void process_input(void){
 void process_graphics_pipeline_stages(mesh_t* mesh){
     // change the mesh scale/rotation values per animation frame
     // mesh->rotation.x += 0.5 * delta_time;
-    // mesh->rotation.y += 0.5 * delta_time;
+    mesh->rotation.y += 0.5 * delta_time;
     // mesh->rotation.z += 0.5 * delta_time;
     // mesh.scale.x += 0.003 * delta_time;
     // mesh.scale.y += 0.001 * delta_time;

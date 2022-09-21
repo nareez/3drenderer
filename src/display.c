@@ -6,8 +6,8 @@ static uint32_t* color_buffer = NULL;
 static SDL_Texture* color_buffer_texture = NULL;
 static float* z_buffer = NULL;
 
-static int window_width = 1000;
-static int window_height = 800;
+static int window_width = 1920;
+static int window_height = 1080;
 
 static int render_method = RENDER_WIRE;
 static int cull_method = CULL_BACKFACE;
